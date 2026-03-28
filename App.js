@@ -3,8 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import LoginPage from './src/screens/LoginPage/loginPage'; 
-import AdminPage from './src/screens/AdminPage'; 
-import EmployeePage from './src/screens/EmployeePage'; 
+import AdminPage from './src/screens/AdminPage/AdminPage'; 
+import EmployeePage from './src/screens/EmployeePage/EmployeePage'; 
 
 const Stack = createStackNavigator();
 
