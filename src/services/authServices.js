@@ -1,4 +1,5 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_ENDPOINTS } from '../../ApiConfig';
 
 const authService = {
@@ -20,6 +21,11 @@ const authService = {
           success: false,
           message: 'Çalışan ID bilgisi sunucudan gelmedi.',
         };
+      }
+
+      if (userId != null) {
+        await AsyncStorage.setItem('user_id', String(userId));
+        await AsyncStorage.setItem('username', serverUsername);
       }
 
       return {
