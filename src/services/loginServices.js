@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_ENDPOINTS } from '../../ApiConfig';
 
-const authService = {
+const loginService = {
   login: async (username, password) => {
     try {
       const response = await axios.post(API_ENDPOINTS.LOGIN, {
@@ -46,4 +46,4 @@ const authService = {
   },
 };
 
-export default authService;
+export default loginService;

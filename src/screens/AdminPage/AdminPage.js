@@ -35,13 +35,25 @@ export default function AdminPage({ navigation }) {
     }
   };
 
-  const handleLogout = async () => {
+const handleLogout = async () => {
+    console.log("Çıkış işlemi başlatıldı...");
     try {
+      // Önce servisi çağırıyoruz
       await adminService.logout();
-      navigation.replace('LoginPage');
+      console.log("Servis çıkışı başarılı, yönlendirme yapılıyor...");
+      
+      // Yönlendirme
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
     } catch (error) {
-      console.log('Logout error:', error);
-      Alert.alert('Hata', 'Çıkış yapılırken bir sorun oluştu.');
+      console.log('Logout error details:', error);
+      // Servis hata verse bile kullanıcıyı Login'e atmak en sağlıklısıdır
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
     }
   };
 

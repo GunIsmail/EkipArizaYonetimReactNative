@@ -7,17 +7,17 @@ const adminService = {
       await AsyncStorage.clear();
       return true;
     } catch (error) {
-      console.log('Logout Hatası:', error);
+      console.log('Logout Hatasi:', error);
       throw error;
     }
   },
 
-  async fetchDashboardStats() {
+  async fetchDashboardStats() { // BU KISIM ASENKRON GELISTIRILDI CUNKU BACKENNDEN  GELEN CEVAP BEKLENMELİ .---- 
     try {
       const currentAdminIdString = await AsyncStorage.getItem('user_id');
 
       if (!currentAdminIdString) {
-        console.log("HATA: Giriş yapmış kullanıcı ID'si bulunamadı.");
+        console.log("HATA: Giris yapmis kullanici ID'si bulunamadi.");
         return null;
       }
 
@@ -32,7 +32,7 @@ const adminService = {
       });
 
       if (!response.ok) {
-        console.log(`API Hatası: ${response.status}`);
+        console.log(`API Hatasi: ${response.status}`);
         return null;
       }
 
@@ -50,10 +50,10 @@ const adminService = {
           worker_count: users.length,
         };
       } else {
-        console.log("HATA: Bu ID'ye sahip kullanıcı veritabanında bulunamadı.");
+        console.log("HATA: Bu ID'ye sahip kullanici veritabaninda bulunamadi.");
       }
     } catch (e) {
-      console.log('Bağlantı Hatası:', e);
+      console.log('Bağlanti Hatasi:', e);
     }
 
     return null;
