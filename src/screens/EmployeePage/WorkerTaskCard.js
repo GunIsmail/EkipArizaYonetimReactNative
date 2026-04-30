@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'NEW': return '#455a64'; // Primary
-    case 'IN_PROGRESS': return '#fbc02d'; // Warning
-    case 'COMPLETED': return '#4caf50'; // Success
-    default: return '#999';
-  }
-};
+import { useColors } from '../../constants/ThemeContext';
 
 export default function WorkerTaskCard({ task, onTaskRequest, onTaskComplete, cardWidth }) {
+  const AppColors = useColors();
+  const styles = useMemo(() => createStyles(AppColors), [AppColors]);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
 
-  const statusColor = getStatusColor(task.status);
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'NEW': return AppColors.primary;
+      case 'IN_PROGRESS': return AppColors.warning;
+      case 'COMPLETED': return AppColors.success;
+      default: return AppColors.textSecondary;
+    }
+  };
 
-  // Status display text - Flutter'daki statusDisplay alanına denk
+  const statusColor = getStatusColor(task.status);
   const statusDisplay = task.statusDisplay || task.status_display || task.status || '';
 
   return (
@@ -27,13 +29,13 @@ export default function WorkerTaskCard({ task, onTaskRequest, onTaskComplete, ca
       <Text style={[styles.status, { color: statusColor }]}>{statusDisplay}</Text>
 
       {task.status === 'NEW' && (
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#455a64' }]} onPress={() => onTaskRequest(task.id)}>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: AppColors.primary }]} onPress={() => onTaskRequest(task.id)}>
           <Text style={styles.btnText}>Talep Et</Text>
         </TouchableOpacity>
       )}
 
       {task.status === 'IN_PROGRESS' && (
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#fbc02d' }]} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: AppColors.warning }]} onPress={() => setModalVisible(true)}>
           <Text style={styles.btnText}>Tamamla</Text>
         </TouchableOpacity>
       )}
@@ -43,38 +45,18 @@ export default function WorkerTaskCard({ task, onTaskRequest, onTaskComplete, ca
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Görevi Tamamla</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Açıklama" 
-              value={desc}
-              onChangeText={setDesc} 
-            />
-            <TextInput 
-              style={styles.input} 
-              placeholder="Tutar (₺)" 
-              keyboardType="numeric" 
-              value={amount}
-              onChangeText={setAmount} 
-            />
+            <TextInput style={styles.input} placeholder="Açıklama" placeholderTextColor={AppColors.placeholder} value={desc} onChangeText={setDesc} />
+            <TextInput style={styles.input} placeholder="Tutar (₺)" placeholderTextColor={AppColors.placeholder} keyboardType="numeric" value={amount} onChangeText={setAmount} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity 
-                style={[styles.btn, { flex: 1, backgroundColor: '#ccc' }]} 
-                onPress={() => {
-                  setModalVisible(false);
-                  setDesc('');
-                  setAmount('');
-                }}
+                style={[styles.btn, { flex: 1, backgroundColor: AppColors.cancelBackground }]} 
+                onPress={() => { setModalVisible(false); setDesc(''); setAmount(''); }}
               >
                 <Text>İptal</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={[styles.btn, { flex: 1, backgroundColor: '#4caf50' }]} 
-                onPress={() => {
-                  onTaskComplete(task.id, desc, parseFloat(amount) || 0);
-                  setModalVisible(false);
-                  setDesc('');
-                  setAmount('');
-                }}
+                style={[styles.btn, { flex: 1, backgroundColor: AppColors.success }]} 
+                onPress={() => { onTaskComplete(task.id, desc, parseFloat(amount) || 0); setModalVisible(false); setDesc(''); setAmount(''); }}
               >
                 <Text style={styles.btnText}>Onayla</Text>
               </TouchableOpacity>
@@ -86,24 +68,15 @@ export default function WorkerTaskCard({ task, onTaskRequest, onTaskComplete, ca
   );
 }
 
-const styles = StyleSheet.create({
-  card: { 
-    backgroundColor: '#fff', 
-    padding: 15, 
-    borderRadius: 12, 
-    marginBottom: 10, 
-    borderTopWidth: 4, 
-    elevation: 2,
-    minHeight: 180,
-    justifyContent: 'space-between',
-  },
-  title: { fontSize: 16, fontWeight: 'bold' },
-  address: { color: '#666', fontSize: 12, marginVertical: 5 },
+const createStyles = (c) => StyleSheet.create({
+  card: { backgroundColor: c.surface, padding: 15, borderRadius: 12, marginBottom: 10, borderTopWidth: 4, elevation: 2, minHeight: 180, justifyContent: 'space-between' },
+  title: { fontSize: 16, fontWeight: 'bold', color: c.textPrimary },
+  address: { color: c.textSecondary, fontSize: 12, marginVertical: 5 },
   status: { fontWeight: 'bold', fontSize: 12, marginBottom: 10 },
   btn: { padding: 10, borderRadius: 8, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: 'bold' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 15 },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 10, marginBottom: 10 }
+  btnText: { color: c.white, fontWeight: 'bold' },
+  modalOverlay: { flex: 1, backgroundColor: c.overlay, justifyContent: 'center', padding: 20 },
+  modalContent: { backgroundColor: c.surface, padding: 20, borderRadius: 15 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: c.textPrimary },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 8, padding: 10, marginBottom: 10, color: c.textPrimary }
 });

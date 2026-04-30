@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,8 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import loginService from '../../services/loginServices';
+import { useColors } from '../../constants/ThemeContext';
 
 export default function LoginPage({ navigation }) {
+  const AppColors = useColors();
+  const styles = useMemo(() => createStyles(AppColors), [AppColors]);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,7 +63,7 @@ export default function LoginPage({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Kullanıcı Adı"
-          placeholderTextColor="#90a4ae"
+          placeholderTextColor={AppColors.placeholder}
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
@@ -68,7 +72,7 @@ export default function LoginPage({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Şifre"
-          placeholderTextColor="#90a4ae"
+          placeholderTextColor={AppColors.placeholder}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -80,7 +84,7 @@ export default function LoginPage({ navigation }) {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={AppColors.white} />
           ) : (
             <Text style={styles.buttonText}>Giriş Yap</Text>
           )}
@@ -90,13 +94,13 @@ export default function LoginPage({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#eceff1' },
+const createStyles = (AppColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: AppColors.background },
   content: { flex: 1, justifyContent: 'center', padding: 25 },
-  header: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', color: '#455a64' },
-  subHeader: { fontSize: 16, textAlign: 'center', color: '#607d8b', marginBottom: 40, marginTop: 8 },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 15, borderWidth: 1, borderColor: '#cfd8dc', color: '#000' },
-  button: { backgroundColor: '#455a64', padding: 18, borderRadius: 12, marginTop: 10, elevation: 3 },
+  header: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', color: AppColors.primary },
+  subHeader: { fontSize: 16, textAlign: 'center', color: AppColors.secondary, marginBottom: 40, marginTop: 8 },
+  input: { backgroundColor: AppColors.inputBackground, padding: 15, borderRadius: 12, marginBottom: 15, borderWidth: 1, borderColor: AppColors.borderLight, color: AppColors.textPrimary },
+  button: { backgroundColor: AppColors.primary, padding: 18, borderRadius: 12, marginTop: 10, elevation: 3 },
   buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 18 },
+  buttonText: { color: AppColors.white, textAlign: 'center', fontWeight: 'bold', fontSize: 18 },
 });

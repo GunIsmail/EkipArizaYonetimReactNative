@@ -1,16 +1,19 @@
 // src/screens/AdminPage/AdminApprovalPage.js
 // Flutter: admin_approval_page.dart karşılığı
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import approvalService from '../../services/approvalServices';
+import { useColors } from '../../constants/ThemeContext';
 
-const COLORS = { primary: '#455a64', secondary: '#607d8b', background: '#eef2f5', surface: '#ffffff', textPrimary: '#263238', textSecondary: '#78909c', success: '#4caf50', error: '#d32f2f' };
 const REQUEST_TYPES = ['task_assignment', 'budget_approval'];
 const TAB_TITLES = ['İş Atama Talepleri', 'Bütçe Harcama Talepleri'];
 
 export default function AdminApprovalPage({ navigation }) {
+  const AppColors = useColors();
+  const styles = useMemo(() => createStyles(AppColors), [AppColors]);
+
   const [activeTab, setActiveTab] = useState(0);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +60,7 @@ export default function AdminApprovalPage({ navigation }) {
             </>
           ) : (
             <>
-              <Text style={[styles.cardTitle, { color: COLORS.primary }]}>Miktar: {item.amount || 0} ₺</Text>
+              <Text style={[styles.cardTitle, { color: AppColors.primary }]}>Miktar: {item.amount || 0} ₺</Text>
               <Text style={styles.cardSub}>Talep Eden: {item.worker_name || 'Bilinmiyor'}</Text>
               <Text style={styles.cardDesc}>Gerekçe: {item.description || 'Açıklama Yok'}</Text>
             </>
@@ -66,10 +69,10 @@ export default function AdminApprovalPage({ navigation }) {
         </View>
         <View style={styles.cardActions}>
           <TouchableOpacity style={styles.rejectBtn} onPress={() => handleProcess(item.id, 'reject')}>
-            <Text style={{ color: COLORS.error, fontWeight: 'bold', fontSize: 16 }}>✕</Text>
+            <Text style={{ color: AppColors.error, fontWeight: 'bold', fontSize: 16 }}>✕</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.approveBtn} onPress={() => handleProcess(item.id, 'approve')}>
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>Onayla</Text>
+            <Text style={{ color: AppColors.white, fontWeight: 'bold', fontSize: 12 }}>Onayla</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -90,7 +93,7 @@ export default function AdminApprovalPage({ navigation }) {
           </TouchableOpacity>
         ))}
       </View>
-      {loading ? <ActivityIndicator style={{ marginTop: 50 }} size="large" color={COLORS.primary} /> : (
+      {loading ? <ActivityIndicator style={{ marginTop: 50 }} size="large" color={AppColors.primary} /> : (
         <FlatList data={requests} keyExtractor={(item) => item.id.toString()} renderItem={renderCard}
           contentContainerStyle={{ padding: 12 }} onRefresh={loadRequests} refreshing={false}
           ListEmptyComponent={<Text style={styles.empty}>Bekleyen talep bulunmamaktadır.</Text>} />
@@ -99,25 +102,25 @@ export default function AdminApprovalPage({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#eef2f5' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#455a64' },
-  back: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  tabBar: { flexDirection: 'row', backgroundColor: '#455a64', paddingHorizontal: 8, paddingBottom: 12 },
+const createStyles = (AppColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: AppColors.background },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: AppColors.headerBackground },
+  back: { color: AppColors.headerText, fontSize: 16, fontWeight: '600' },
+  headerTitle: { color: AppColors.headerText, fontSize: 18, fontWeight: 'bold' },
+  tabBar: { flexDirection: 'row', backgroundColor: AppColors.headerBackground, paddingHorizontal: 8, paddingBottom: 12 },
   tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8, marginHorizontal: 4 },
-  activeTab: { backgroundColor: 'rgba(255,255,255,0.2)' },
-  tabText: { color: 'rgba(255,255,255,0.7)', fontWeight: '600', fontSize: 13 },
-  activeTabText: { color: '#fff' },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, flexDirection: 'row', alignItems: 'center', elevation: 3 },
+  activeTab: { backgroundColor: AppColors.activeTabBackground },
+  tabText: { color: AppColors.inactiveTabText, fontWeight: '600', fontSize: 13 },
+  activeTabText: { color: AppColors.white },
+  card: { backgroundColor: AppColors.surface, borderRadius: 12, padding: 14, marginBottom: 10, flexDirection: 'row', alignItems: 'center', elevation: 3 },
   cardIcon: { fontSize: 28, marginRight: 12 },
   cardContent: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: 'bold', color: '#263238', marginBottom: 2 },
-  cardSub: { fontSize: 13, color: '#263238' },
-  cardDesc: { fontSize: 12, color: '#78909c', marginTop: 2 },
-  cardDate: { fontSize: 11, color: '#78909c', marginTop: 4 },
+  cardTitle: { fontSize: 15, fontWeight: 'bold', color: AppColors.textPrimary, marginBottom: 2 },
+  cardSub: { fontSize: 13, color: AppColors.textPrimary },
+  cardDesc: { fontSize: 12, color: AppColors.textSecondary, marginTop: 2 },
+  cardDate: { fontSize: 11, color: AppColors.textSecondary, marginTop: 4 },
   cardActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  rejectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(211,47,47,0.1)', justifyContent: 'center', alignItems: 'center' },
-  approveBtn: { backgroundColor: '#4caf50', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
-  empty: { textAlign: 'center', marginTop: 50, color: '#78909c', fontSize: 15 },
+  rejectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: AppColors.errorLight, justifyContent: 'center', alignItems: 'center' },
+  approveBtn: { backgroundColor: AppColors.success, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  empty: { textAlign: 'center', marginTop: 50, color: AppColors.textSecondary, fontSize: 15 },
 });
