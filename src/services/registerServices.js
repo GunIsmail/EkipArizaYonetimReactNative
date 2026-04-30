@@ -70,7 +70,6 @@ const registerService = {
       return { success: true, message: 'Kayıt başarıyla tamamlandı.' };
 
     } catch (error) {
-      // Detaylı Hata Analizi
       if (error.response) {
         // Sunucu bir hata kodu döndürdü (400, 401, 500 vb.)
         console.log("Backend Hata Detayı:", error.response.data);
@@ -81,7 +80,6 @@ const registerService = {
           message: error.response.data?.error || error.response.data?.detail || `Sunucu hatası: ${error.response.status}`,
         };
       } else if (error.request) {
-        // İstek yapıldı ama sunucudan cevap gelmedi (Network hatası)
         console.log("İstek yapıldı ama yanıt alınamadı (Network Error).");
         return { success: false, message: 'Sunucuya ulaşılamıyor. İnternet bağlantınızı veya IP adresini kontrol edin.' };
       } else {

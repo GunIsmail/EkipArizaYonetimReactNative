@@ -6,27 +6,29 @@ const loginService = {
   login: async (username, password) => {
     try {
       const response = await axios.post(API_ENDPOINTS.LOGIN, {
-        username,
-        password,
+        username: username.trim(),
+        password: password,
       });
 
       const data = response.data;
 
-      const isAdmin = data?.is_staff ?? false;
-      const userId = data?.id ?? null;
-      const serverUsername = data?.username ?? username;
+      // API'den gelen verileri parçalayalım
+      const isAdmin = data?.is_staff === true; 
+      const userId = data?.id;
+      const serverUsername = data?.username || username;
 
-      if (!isAdmin && userId == null) {
+      // Güvenlik Kontrolü: id gelmiyorsa hata döndür
+      if (userId === undefined || userId === null) {
         return {
           success: false,
-          message: 'Çalışan ID bilgisi sunucudan gelmedi.',
+          message: 'Kullanıcı ID bilgisi sunucudan alınamadı.',
         };
       }
 
-      if (userId != null) {
-        await AsyncStorage.setItem('user_id', String(userId));
-        await AsyncStorage.setItem('username', serverUsername);
-      }
+      // Verileri cihaz hafızasına kaydet 
+      await AsyncStorage.setItem('user_id', String(userId));
+      await AsyncStorage.setItem('username', serverUsername);
+      await AsyncStorage.setItem('is_admin', String(isAdmin));
 
       return {
         success: true,
@@ -40,7 +42,7 @@ const loginService = {
         message:
           error?.response?.data?.error ||
           error?.response?.data?.detail ||
-          `Sunucuya bağlanılamadı: ${error.message}`,
+          `Sunucu hatası: ${error.message}`,
       };
     }
   },

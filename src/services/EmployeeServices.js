@@ -68,7 +68,7 @@ const EmployeeService = {
   //  Bütçe geçmişi
   fetchBudgetHistory: async (workerId) => {
     try {
-      const response = await axios.get(API_ENDPOINTS.GET_BUDGET_HISTORY(workerId));
+      const response = await axios.get(API_ENDPOINTS.WORKER_BUDGET_HISTORY_ALT(workerId));
       return response.status === 200 ? response.data : [];
     } catch (e) {
       console.error('Bütçe geçmişi hatası:', e);
