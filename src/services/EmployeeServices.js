@@ -110,6 +110,42 @@ const EmployeeService = {
       return false;
     }
   },
+
+  //  Profil resmi yükle
+  uploadProfilePicture: async (workerId, imageUri) => {
+    try {
+      const formData = new FormData();
+
+      // Dosya adı ve tipini URI'den çıkar
+      const filename = imageUri.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+      formData.append('profile_picture', {
+        uri: imageUri,
+        name: filename,
+        type: type,
+      });
+
+      const response = await axios.patch(
+        API_ENDPOINTS.UPDATE_WORKER(workerId),
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        return response.data;
+      }
+      return null;
+    } catch (e) {
+      console.error('Profil resmi yükleme hatası:', e);
+      return null;
+    }
+  },
 };
 
 export default EmployeeService;

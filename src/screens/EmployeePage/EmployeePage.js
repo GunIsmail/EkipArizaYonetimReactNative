@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ActivityIndicator, Alert, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ActivityIndicator, Alert, SafeAreaView, Dimensions, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import EmployeeService from '../../services/EmployeeServices';
 import WorkerTaskCard from '../EmployeePage/WorkerTaskCard';
 import { useColors, useThemeToggle } from '../../constants/ThemeContext';
@@ -14,6 +15,8 @@ export default function EmployeePage({ route, navigation }) {
   const { workerId, username } = route.params;
   const [workerBudget, setWorkerBudget] = useState(0.0);
   const [currentStatus, setCurrentStatus] = useState('Müsait');
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [activeTab, setActiveTab] = useState('POOL');
   const [tasks, setTasks] = useState([]);
   const [history, setHistory] = useState([]);
@@ -32,6 +35,7 @@ export default function EmployeePage({ route, navigation }) {
     if (data) {
       setWorkerBudget(data.budget || 0.0);
       setCurrentStatus(data.statusText || 'Bilinmiyor');
+      setProfilePicture(data.profile_picture || null);
     }
     await fetchTasks();
     setLoading(false);
@@ -43,9 +47,45 @@ export default function EmployeePage({ route, navigation }) {
     if (data) {
       setWorkerBudget(data.budget || 0.0);
       setCurrentStatus(data.statusText || 'Bilinmiyor');
+      setProfilePicture(data.profile_picture || null);
     }
     await fetchTasks();
     setRefreshing(false);
+  };
+
+  const pickAndUploadImage = async () => {
+    // Galeri izni iste
+    const { status: permStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permStatus !== 'granted') {
+      Alert.alert('İzin Gerekli', 'Galeriye erişim izni verilmedi.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedUri = result.assets[0].uri;
+      setUploadingPhoto(true);
+      const response = await EmployeeService.uploadProfilePicture(workerId, selectedUri);
+      setUploadingPhoto(false);
+
+      if (response) {
+        setProfilePicture(response.profile_picture || selectedUri);
+        Alert.alert('Başarılı', 'Profil resminiz güncellendi.');
+      } else {
+        Alert.alert('Hata', 'Resim yüklenirken bir sorun oluştu.');
+      }
+    }
+  };
+
+  // Kullanıcı adının baş harfini al (varsayılan avatar için)
+  const getInitial = () => {
+    return username ? username.charAt(0).toUpperCase() : '?';
   };
 
   const fetchTasks = async () => {
@@ -98,7 +138,26 @@ export default function EmployeePage({ route, navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.welcomeText}>Hoş Geldin, {username}</Text>
+          {/* Profil Resmi Avatar */}
+          <TouchableOpacity onPress={pickAndUploadImage} activeOpacity={0.7} style={styles.avatarContainer}>
+            {uploadingPhoto ? (
+              <View style={styles.avatarPlaceholder}>
+                <ActivityIndicator size="small" color={AppColors.white} />
+              </View>
+            ) : profilePicture ? (
+              <Image source={{ uri: profilePicture }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarInitial}>{getInitial()}</Text>
+              </View>
+            )}
+            <View style={styles.avatarBadge}>
+              <Text style={styles.avatarBadgeText}>📷</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.headerInfo}>
+            <Text style={styles.welcomeText}>Hoş Geldin, {username}</Text>
+          </View>
           <View style={styles.headerActions}>
             <TouchableOpacity onPress={toggleTheme} style={styles.themeToggle} activeOpacity={0.7}>
               <Text style={styles.themeToggleText}>{isDark ? '☀️' : '🌙'}</Text>
@@ -197,11 +256,19 @@ export default function EmployeePage({ route, navigation }) {
 const createStyles = (c) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.background },
   header: { padding: 20, backgroundColor: c.headerBackground, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, elevation: 5 },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTop: { flexDirection: 'row', alignItems: 'center' },
+  headerInfo: { flex: 1, marginLeft: 12 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  // Avatar Stilleri
+  avatarContainer: { position: 'relative' },
+  avatarImage: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: c.white },
+  avatarPlaceholder: { width: 56, height: 56, borderRadius: 28, backgroundColor: c.whiteOverlay20, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: c.white },
+  avatarInitial: { color: c.white, fontSize: 24, fontWeight: 'bold' },
+  avatarBadge: { position: 'absolute', bottom: -2, right: -2, width: 22, height: 22, borderRadius: 11, backgroundColor: c.primary, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: c.headerBackground },
+  avatarBadgeText: { fontSize: 10 },
   themeToggle: { width: 36, height: 36, borderRadius: 18, backgroundColor: c.whiteOverlay15, justifyContent: 'center', alignItems: 'center' },
   themeToggleText: { fontSize: 18 },
-  welcomeText: { color: c.white, fontSize: 22, fontWeight: 'bold' },
+  welcomeText: { color: c.white, fontSize: 20, fontWeight: 'bold' },
   logoutText: { color: c.error, fontWeight: 'bold' },
   budgetRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 },
   budgetText: { color: c.budgetPositive, fontSize: 22, fontWeight: '900' },

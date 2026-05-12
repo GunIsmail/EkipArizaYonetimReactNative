@@ -30,4 +30,5 @@ export const API_ENDPOINTS = {
     `${BASE_URL}/api/approvals/${requestType}/${requestId}/process/`,
   WORKER_BUDGET_HISTORY_ALT: (workerId) =>
     `${BASE_URL}/api/workers/${workerId}/budget-history/`,
+  UPDATE_WORKER: (workerId) => `${BASE_URL}/api/workers/${workerId}/`,
 };

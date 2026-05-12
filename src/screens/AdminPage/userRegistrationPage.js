@@ -30,8 +30,12 @@ export default function UserRegistrationPage({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>← Geri</Text></TouchableOpacity>
+        <Text style={styles.headerTitle}>Yeni Kullanıcı Kaydı</Text>
+        <View style={{ width: 50 }} />
+      </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Yeni Kullanıcı Kaydı</Text>
         <TextInput style={styles.input} placeholder="Kullanıcı Adı" placeholderTextColor={AppColors.placeholder} value={username} onChangeText={setUsername} autoCapitalize="none" />
         <TextInput style={styles.input} placeholder="Şifre" placeholderTextColor={AppColors.placeholder} secureTextEntry value={password} onChangeText={setPassword} />
         <TextInput style={styles.input} placeholder="Telefon (Örn: 5051234567)" placeholderTextColor={AppColors.placeholder} keyboardType="phone-pad" maxLength={10} value={phone} onChangeText={setPhone} />
@@ -53,8 +57,10 @@ export default function UserRegistrationPage({ navigation }) {
 
 const createStyles = (c) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.background },
+  headerBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: c.headerBackground },
+  backBtn: { color: c.headerText, fontSize: 16, fontWeight: '600' },
+  headerTitle: { color: c.headerText, fontSize: 18, fontWeight: 'bold' },
   scrollContent: { padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: c.primary, marginBottom: 20, textAlign: 'center' },
   input: { backgroundColor: c.inputBackground, padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: c.border, color: c.textPrimary },
   label: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: c.secondary },
   roleContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 },

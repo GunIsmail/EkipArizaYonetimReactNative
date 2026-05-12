@@ -1,7 +1,7 @@
 // src/screens/AdminPage/ShowPersonelListPage.js
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, SectionList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import personelService from '../../services/personelServices';
 import { useColors } from '../../constants/ThemeContext';
@@ -41,9 +41,13 @@ export default function ShowPersonelListPage({ navigation }) {
 
   const renderWorker = ({ item }) => (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('AssignJobPage', { worker: item })}>
-      <View style={[styles.iconCircle, { backgroundColor: item.statusColor }]}>
-        <Text style={styles.iconText}>👤</Text>
-      </View>
+      {item.profile_picture ? (
+        <Image source={{ uri: item.profile_picture }} style={[styles.iconCircle, { borderWidth: 2, borderColor: item.statusColor }]} />
+      ) : (
+        <View style={[styles.iconCircle, { backgroundColor: item.statusColor }]}>
+          <Text style={styles.iconText}>👤</Text>
+        </View>
+      )}
       <View style={styles.cardInfo}>
         <Text style={styles.cardName}>{item.name}</Text>
         <Text style={styles.cardRole}>Rol: {item.role} | Tel: {item.phone}</Text>
