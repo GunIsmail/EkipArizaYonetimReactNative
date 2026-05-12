@@ -1,7 +1,7 @@
 // src/screens/AdminPage/AssignJobPage.js
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import taskService from '../../services/taskServices';
 import { useColors } from '../../constants/ThemeContext';
@@ -43,9 +43,13 @@ export default function AssignJobPage({ route, navigation }) {
       </View>
       <ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 30 }}>
         <View style={[styles.workerCard, { borderLeftColor: worker.statusColor || AppColors.primary }]}>
-          <View style={[styles.avatar, { backgroundColor: worker.statusColor || AppColors.primary }]}>
-            <Text style={styles.avatarText}>👤</Text>
-          </View>
+          {worker.profile_picture ? (
+            <Image source={{ uri: worker.profile_picture }} style={[styles.avatar, { borderWidth: 2, borderColor: worker.statusColor || AppColors.primary }]} />
+          ) : (
+            <View style={[styles.avatar, { backgroundColor: worker.statusColor || AppColors.primary }]}>
+              <Text style={styles.avatarText}>👤</Text>
+            </View>
+          )}
           <View>
             <Text style={styles.workerName}>{worker.name}</Text>
             <Text style={styles.workerRole}>{worker.role} - {worker.status}</Text>

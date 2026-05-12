@@ -1,7 +1,7 @@
 // src/screens/AdminPage/BudgetManagementPage.js
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import budgetService from '../../services/budgetServices';
 import BudgetHistoryModal from './BudgetHistoryModal';
@@ -67,7 +67,11 @@ export default function BudgetManagementPage({ navigation }) {
   const renderWorkerCard = ({ item }) => (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => setHistoryModal({ visible: true, workerId: Number(item.id), workerName: item.name })}>
       <View style={styles.cardTop}>
-        <View style={styles.cardIconWrap}><Text style={styles.cardIcon}>💰</Text></View>
+        {item.profile_picture ? (
+          <Image source={{ uri: item.profile_picture }} style={[styles.cardIconWrap, { borderWidth: 2, borderColor: AppColors.primaryLight }]} />
+        ) : (
+          <View style={styles.cardIconWrap}><Text style={styles.cardIcon}>💰</Text></View>
+        )}
         <View style={styles.cardInfo}>
           <Text style={styles.cardName}>{item.name}</Text>
           <Text style={styles.cardRole}>{item.role}</Text>
