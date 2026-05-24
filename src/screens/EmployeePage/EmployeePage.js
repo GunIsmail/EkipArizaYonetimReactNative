@@ -4,6 +4,8 @@ import * as ImagePicker from 'expo-image-picker';
 import EmployeeService from '../../services/EmployeeServices';
 import WorkerTaskCard from '../EmployeePage/WorkerTaskCard';
 import { useColors, useThemeToggle } from '../../constants/ThemeContext';
+import NotificationManager from '../../notifications/NotificationManager';
+import { NotificationFactory } from '../../notifications/NotificationFactory';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -96,9 +98,14 @@ export default function EmployeePage({ route, navigation }) {
   };
 
   const handleTaskRequest = async (taskId) => {
+    const acceptedTask = tasks.find((t) => t.id === taskId);
     const success = await EmployeeService.requestTask(taskId, workerId);
-    if (success) { Alert.alert("Başarılı", "İş talebiniz alındı."); fetchTasks(); }
-    else { Alert.alert("Hata", "İş talebi başarısız oldu."); }
+    if (success) {
+      NotificationManager.notify(NotificationFactory.jobAccepted(acceptedTask?.title));
+      fetchTasks();
+    } else {
+      NotificationManager.notify(NotificationFactory.jobRequestFailed());
+    }
   };
 
   const handleTaskComplete = async (taskId, desc, amount) => {

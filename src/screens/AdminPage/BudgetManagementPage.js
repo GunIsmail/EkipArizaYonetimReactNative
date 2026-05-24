@@ -6,6 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import budgetService from '../../services/budgetServices';
 import BudgetHistoryModal from './BudgetHistoryModal';
 import { useColors } from '../../constants/ThemeContext';
+import NotificationManager from '../../notifications/NotificationManager';
+import { NotificationFactory } from '../../notifications/NotificationFactory';
 
 export default function BudgetManagementPage({ navigation }) {
   const AppColors = useColors();
@@ -29,9 +31,20 @@ export default function BudgetManagementPage({ navigation }) {
   };
 
   const handleBudgetUpdate = async (workerId, newBudget, description) => {
+    const target = workers.find((w) => w.id === workerId);
+    const prevBudget = target ? Number(target.budget) : null;
+    const delta = prevBudget !== null ? Number(newBudget) - prevBudget : null;
     const result = await budgetService.updateBudget({ workerId, newBudget, description });
-    if (result.success) { Alert.alert('Başarılı', 'İşlem tamamlandı.'); loadWorkers(); }
-    else { Alert.alert('Hata', result.message); }
+    if (result.success) {
+      NotificationManager.notify(NotificationFactory.budgetUpdated({
+        workerName: target?.name,
+        newBudget,
+        delta,
+      }));
+      loadWorkers();
+    } else {
+      NotificationManager.notify(NotificationFactory.budgetUpdateFailed(result.message));
+    }
   };
 
   const openEditModal = (worker) => {
@@ -67,11 +80,13 @@ export default function BudgetManagementPage({ navigation }) {
   const renderWorkerCard = ({ item }) => (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => setHistoryModal({ visible: true, workerId: Number(item.id), workerName: item.name })}>
       <View style={styles.cardTop}>
-        {item.profile_picture ? (
-          <Image source={{ uri: item.profile_picture }} style={[styles.cardIconWrap, { borderWidth: 2, borderColor: AppColors.primaryLight }]} />
-        ) : (
-          <View style={styles.cardIconWrap}><Text style={styles.cardIcon}>💰</Text></View>
-        )}
+        <View style={[styles.cardIconWrap, { overflow: 'hidden', backgroundColor: item.profile_picture ? 'transparent' : AppColors.primaryLight, borderWidth: item.profile_picture ? 2 : 0, borderColor: item.profile_picture ? AppColors.primaryLight : 'transparent' }]}>
+          {item.profile_picture ? (
+            <Image source={{ uri: item.profile_picture }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          ) : (
+            <Text style={styles.cardIcon}>💰</Text>
+          )}
+        </View>
         <View style={styles.cardInfo}>
           <Text style={styles.cardName}>{item.name}</Text>
           <Text style={styles.cardRole}>{item.role}</Text>
