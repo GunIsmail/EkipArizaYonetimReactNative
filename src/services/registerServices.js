@@ -58,7 +58,6 @@ const registerService = {
 
     // 3. API İsteği
     try {
-      // Zaman aşımı (timeout) ekleyelim ki istek asılı kalmasın
       const response = await axios.post(API_ENDPOINTS.REGISTER, bodyData, {
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 import { API_ENDPOINTS } from '../../ApiConfig';
 
 const EmployeeService = {
@@ -116,25 +117,34 @@ const EmployeeService = {
     try {
       const formData = new FormData();
 
-      // Dosya adı ve tipini URI'den çıkar
-      const filename = imageUri.split('/').pop();
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      // Web ve native FormData davranışı farklı:
+      //  - Native (iOS/Android): { uri, name, type } objesi kabul edilir
+      //  - Web: gerçek bir Blob/File gerekir; aksi halde "[object Object]" gönderilir
+      if (Platform.OS === 'web') {
+        const blob = await (await fetch(imageUri)).blob();
+        const extFromType = blob.type && blob.type.includes('/') ? blob.type.split('/')[1] : 'jpg';
+        const filename = `profile_${workerId}_${Date.now()}.${extFromType}`;
+        formData.append('profile_picture', blob, filename);
+      } else {
+        const filename = imageUri.split('/').pop();
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+        formData.append('profile_picture', {
+          uri: imageUri,
+          name: filename,
+          type: type,
+        });
+      }
 
-      formData.append('profile_picture', {
-        uri: imageUri,
-        name: filename,
-        type: type,
-      });
+      // Web'de Content-Type'ı tarayıcının (boundary ile birlikte) ayarlamasına izin ver
+      const headers = Platform.OS === 'web'
+        ? {}
+        : { 'Content-Type': 'multipart/form-data' };
 
       const response = await axios.patch(
         API_ENDPOINTS.UPDATE_WORKER(workerId),
         formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        { headers }
       );
 
       if (response.status === 200) {

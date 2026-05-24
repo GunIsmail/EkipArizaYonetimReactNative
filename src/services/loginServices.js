@@ -17,11 +17,10 @@ const loginService = {
       const userId = data?.id;
       const serverUsername = data?.username || username;
 
-      // Güvenlik Kontrolü: id gelmiyorsa hata döndür
       if (userId === undefined || userId === null) {
         return {
           success: false,
-          message: 'Kullanıcı ID bilgisi sunucudan alınamadı.',
+          message: 'Kullanici ID bilgisi sunucudan alinamadi.',
         };
       }
 

@@ -43,13 +43,13 @@ export default function AssignJobPage({ route, navigation }) {
       </View>
       <ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 30 }}>
         <View style={[styles.workerCard, { borderLeftColor: worker.statusColor || AppColors.primary }]}>
-          {worker.profile_picture ? (
-            <Image source={{ uri: worker.profile_picture }} style={[styles.avatar, { borderWidth: 2, borderColor: worker.statusColor || AppColors.primary }]} />
-          ) : (
-            <View style={[styles.avatar, { backgroundColor: worker.statusColor || AppColors.primary }]}>
+          <View style={[styles.avatar, { backgroundColor: worker.profile_picture ? 'transparent' : (worker.statusColor || AppColors.primary), borderWidth: worker.profile_picture ? 2 : 0, borderColor: worker.profile_picture ? (worker.statusColor || AppColors.primary) : 'transparent', overflow: 'hidden' }]}>
+            {worker.profile_picture ? (
+              <Image source={{ uri: worker.profile_picture }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            ) : (
               <Text style={styles.avatarText}>👤</Text>
-            </View>
-          )}
+            )}
+          </View>
           <View>
             <Text style={styles.workerName}>{worker.name}</Text>
             <Text style={styles.workerRole}>{worker.role} - {worker.status}</Text>

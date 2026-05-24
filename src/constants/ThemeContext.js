@@ -60,7 +60,7 @@ const LightColors = {
   whiteOverlay12: 'rgba(255,255,255,0.12)',
   whiteOverlay15: 'rgba(255,255,255,0.15)',
   whiteOverlay20: 'rgba(255,255,255,0.20)',
-  whiteOverlay30: 'rgba(255,255,255,0.30)',
+        whiteOverlay30: 'rgba(255,255,255,0.30)',
   whiteOverlay75: 'rgba(255,255,255,0.75)',
   shadowColor: '#000000',
 };
@@ -174,8 +174,7 @@ export function useColors() {
   return colors;
 }
 
-// Toggle hook — tema değiştirme butonu için
-// Kullanım: const { toggleTheme, isDark } = useThemeToggle();
+
 export function useThemeToggle() {
   const { toggleTheme, isDark } = useContext(ThemeContext);
   return { toggleTheme, isDark };
